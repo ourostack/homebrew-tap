@@ -1,0 +1,41 @@
+name: Verify casks
+
+# Installs every cask from the published tap on a clean macOS runner and runs
+# the tool, so a broken cask is caught right after it is published.
+on:
+  workflow_run:
+    workflows: ["Update casks"]
+    types: [completed]
+  workflow_dispatch:
+  schedule:
+    - cron: "41 6 * * *"
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: macos-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install and run each cask
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: "1"
+          HOMEBREW_NO_INSTALL_CLEANUP: "1"
+        run: |
+          set -euo pipefail
+          brew tap ourostack/tap "https://github.com/${GITHUB_REPOSITORY}"
+          for cask in Casks/*.rb; do
+            tool="$(basename "$cask" .rb)"
+            echo "::group::$tool"
+            brew install --cask "ourostack/tap/$tool"
+            "$tool" version
+            "$tool" --help >/dev/null
+            if xattr -p com.apple.quarantine "$(brew --prefix)/bin/$tool" >/dev/null 2>&1; then
+              echo "quarantine attribute still set on $tool"; exit 1
+            fi
+            echo "::endgroup::"
+          done
