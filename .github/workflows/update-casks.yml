@@ -1,0 +1,58 @@
+name: Update casks
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+  repository_dispatch:
+    types: [release-published]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-casks
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Pull the newest cask of each tool
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p Casks
+          git config user.name "Ari Mendelow"
+          git config user.email "16390116+arimendelow@users.noreply.github.com"
+          while read -r repo; do
+            case "$repo" in ""|"#"*) continue ;; esac
+            tool="${repo#*/}"
+            # Newest non-draft release, prereleases included.
+            tag="$(gh release list -R "$repo" --limit 10 --json tagName,isDraft --jq '[.[] | select(.isDraft | not)][0].tagName // empty')"
+            if [ -z "$tag" ]; then
+              echo "$repo: no release yet, skipping"
+              continue
+            fi
+            tmp="$(mktemp -d)"
+            if ! gh release download "$tag" -R "$repo" -p "$tool.rb" -D "$tmp"; then
+              echo "$repo $tag: no $tool.rb asset, skipping"
+              continue
+            fi
+            if [ -f "Casks/$tool.rb" ] && cmp -s "$tmp/$tool.rb" "Casks/$tool.rb"; then
+              echo "$repo $tag: cask unchanged"
+              continue
+            fi
+            cp "$tmp/$tool.rb" "Casks/$tool.rb"
+            git add "Casks/$tool.rb"
+            git commit -m "$tool ${tag#v}"
+          done < tools.txt
+          if [ -n "$(git log origin/main..HEAD --oneline)" ]; then
+            git push origin HEAD:main
+          else
+            echo "Nothing to push"
+          fi
