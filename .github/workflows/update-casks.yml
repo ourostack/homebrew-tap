@@ -1,14 +1,19 @@
 name: Update casks
 
+# GitHub starts scheduled workflows late and skips some of them: an hourly schedule
+# here really ran every three to nine hours, so a release waited that long for its
+# cask. Asking every ten minutes keeps the real gap short. A run that finds nothing
+# new takes a few seconds and starts no other workflow.
 on:
   schedule:
-    - cron: "17 * * * *"
+    - cron: "*/10 * * * *"
   workflow_dispatch:
   repository_dispatch:
     types: [release-published]
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: update-casks
@@ -53,6 +58,9 @@ jobs:
           done < tools.txt
           if [ -n "$(git log origin/main..HEAD --oneline)" ]; then
             git push origin HEAD:main
+            # Check the new cask on a clean Mac right away. Only a run that
+            # published something starts the check.
+            gh workflow run verify-casks.yml -R "$GITHUB_REPOSITORY" --ref main
           else
             echo "Nothing to push"
           fi
