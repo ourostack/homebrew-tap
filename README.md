@@ -14,7 +14,7 @@ brew install ourostack/tap/<tool>
 
 ## How casks get here
 
-The tap pulls; no tool repo holds a credential for it. Each tool's release attaches its rendered cask as an asset named `<tool>.rb`. The `Update casks` workflow is scheduled every ten minutes (GitHub starts scheduled runs late, so expect a new release to reach the tap within the hour; it also runs on manual or `repository_dispatch` triggers). It reads `tools.txt`, downloads the `<tool>.rb` asset of each tool's newest release (prereleases included), and commits `Casks/<tool>.rb` to `main` as `<tool> <version>` when it changed. A run that publishes a cask starts `Verify casks`, which installs it on a clean Mac. Do not edit casks by hand.
+Each tool publishes its own cask as part of its release. A stable release attaches its rendered cask as an asset named `<tool>.rb`, and once the release's artifacts verify, the tool's release workflow pushes that file to `Casks/<tool>.rb` on `main` as `<tool> <version>`. It pushes with a deploy key that can write to this repository and nothing else, held as the `HOMEBREW_TAP_DEPLOY_KEY` secret in the tool's repository. The push starts `Verify casks`, which installs every cask on a clean Mac. As a safety net, the `Update casks` workflow runs once a day (and on manual or `repository_dispatch` triggers): it reads `tools.txt`, downloads the `<tool>.rb` asset of each tool's newest release and commits it if the tap is behind. Do not edit casks by hand.
 
 ## Registering a new ourostack CLI
 

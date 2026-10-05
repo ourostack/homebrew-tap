@@ -1,12 +1,11 @@
 name: Update casks
 
-# GitHub starts scheduled workflows late and skips some of them: an hourly schedule
-# here really ran every three to nine hours, so a release waited that long for its
-# cask. Asking every ten minutes keeps the real gap short. A run that finds nothing
-# new takes a few seconds and starts no other workflow.
+# A safety net, not the publishing path: each tool's release workflow pushes its own
+# cask here as part of the release. This daily run repairs the tap if such a push was
+# missed. GitHub starts scheduled workflows late, so nothing may depend on its timing.
 on:
   schedule:
-    - cron: "*/10 * * * *"
+    - cron: "17 5 * * *"
   workflow_dispatch:
   repository_dispatch:
     types: [release-published]
