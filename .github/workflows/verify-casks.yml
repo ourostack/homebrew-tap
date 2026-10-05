@@ -1,9 +1,13 @@
 name: Verify casks
 
 # Installs every cask from the published tap on a clean macOS runner and runs
-# the tool, so a broken cask is caught right after it is published. Update casks
-# starts this workflow when it publishes a cask; it also runs once a day.
+# the tool, so a broken cask is caught right after it is published: a tool's
+# release pushes its cask, and that push starts this workflow. Update casks starts
+# it too when it repairs a cask, and it runs once a day.
 on:
+  push:
+    branches: [main]
+    paths: ["Casks/**"]
   workflow_dispatch:
   schedule:
     - cron: "41 6 * * *"
