@@ -36,8 +36,10 @@ jobs:
           while read -r repo; do
             case "$repo" in ""|"#"*) continue ;; esac
             tool="${repo#*/}"
-            # Newest non-draft release, prereleases included.
-            tag="$(gh release list -R "$repo" --limit 10 --json tagName,isDraft --jq '[.[] | select(.isDraft | not)][0].tagName // empty')"
+            # Newest stable release only. main is what users install: a prerelease (an rc
+            # rehearsal) never belongs here; each tool's own release workflow puts those on the
+            # rehearsal branch.
+            tag="$(gh release list -R "$repo" --limit 50 --exclude-drafts --exclude-pre-releases --json tagName --jq '.[0].tagName // empty')"
             if [ -z "$tag" ]; then
               echo "$repo: no release yet, skipping"
               continue
@@ -46,6 +48,16 @@ jobs:
             if ! gh release download "$tag" -R "$repo" -p "$tool.rb" -D "$tmp"; then
               echo "$repo $tag: no $tool.rb asset, skipping"
               continue
+            fi
+            # Never move a cask backwards: keep a later version already on main.
+            if [ -f "Casks/$tool.rb" ]; then
+              current="$(sed -n 's/^[[:space:]]*version "\([^"]*\)"[[:space:]]*$/\1/p' "Casks/$tool.rb" | head -n 1)"
+              # A prerelease on main is itself the defect to repair, never a version to keep.
+              case "$current" in *-*) current="" ;; esac
+              if [ -n "$current" ] && [ "$current" != "${tag#v}" ] && [ "$(printf '%s\n%s\n' "$current" "${tag#v}" | sort -V | tail -n 1)" = "$current" ]; then
+                echo "$repo $tag: main already has $current, keeping it"
+                continue
+              fi
             fi
             if [ -f "Casks/$tool.rb" ] && cmp -s "$tmp/$tool.rb" "Casks/$tool.rb"; then
               echo "$repo $tag: cask unchanged"
