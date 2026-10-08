@@ -1,1 +1,1 @@
-ourostack/teamscrawl
+ourostack/m365crawl
