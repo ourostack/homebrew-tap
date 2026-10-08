@@ -10,7 +10,7 @@ brew install ourostack/tap/<tool>
 
 | Tool | Install | Description |
 | --- | --- | --- |
-| [teamscrawl](https://github.com/ourostack/teamscrawl) | `brew install ourostack/tap/teamscrawl` | Mirror the Microsoft Teams desktop cache into local SQLite for agents. Read-only, offline, no tokens. |
+| [m365crawl](https://github.com/ourostack/m365crawl) | `brew install ourostack/tap/m365crawl` | Mirror Microsoft Teams chats, Outlook mail and the calendar from the desktop apps' local caches into SQLite for agents. Read-only, offline, no tokens. |
 
 ## How casks get here
 
