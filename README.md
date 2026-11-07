@@ -4,9 +4,11 @@
 </p>
 <!-- ourostack:brand:end -->
 
-# ourostack Homebrew tap
+# Ouro Homebrew tap
 
-Homebrew casks for ourostack command-line tools.
+**Homebrew casks for our command-line tools: `brew install ourostack/tap/<tool>`.**
+
+[Tools](#tools) · [m365crawl](https://github.com/ourostack/m365crawl) · [Add a tool](#registering-a-new-ourostack-cli) · [More from Ouro](https://github.com/ourostack)
 
 ```sh
 brew install ourostack/tap/<tool>
