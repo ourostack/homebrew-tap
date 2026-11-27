@@ -30,7 +30,11 @@ cask "m365crawl" do
     end
   end
 
-  caveats "m365crawl is in maintenance mode, because something new is on its way. It keeps working, and you'll hear at https://github.com/ourostack/m365crawl when the new thing lands."
+  caveats <<~EOS
+    m365crawl is in maintenance mode, because something new is on its way.
+    It keeps working, and you'll hear at https://github.com/ourostack/m365crawl
+    when the new thing lands.
+  EOS
 
   # No zap stanza required
 end
