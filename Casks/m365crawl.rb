@@ -14,7 +14,7 @@ cask "m365crawl" do
   end
 
   name "m365crawl"
-  desc "Mirror the Microsoft Teams desktop cache into local SQLite for agents. Read-only, offline, no tokens."
+  desc "Microsoft 365 for agents, in maintenance mode while something new takes shape"
   homepage "https://github.com/ourostack/m365crawl"
 
   livecheck do
@@ -29,6 +29,12 @@ cask "m365crawl" do
                      args: ["-dr", "com.apple.quarantine", "#{staged_path}/m365crawl"]
     end
   end
+
+  caveats <<~EOS
+    m365crawl is in maintenance mode, because something new is on its way.
+    It keeps working, and you'll hear at https://github.com/ourostack/m365crawl
+    when the new thing lands.
+  EOS
 
   # No zap stanza required
 end

@@ -18,7 +18,7 @@ brew install ourostack/tap/m365crawl
 
 | Tool | What it does |
 | --- | --- |
-| [m365crawl](https://github.com/ourostack/m365crawl) | Microsoft 365 for agents: offline search across Teams, Outlook and OneNote indexed notes, with source-qualified people observations and explicit transcript fetch. |
+| [m365crawl](https://github.com/ourostack/m365crawl) | Microsoft 365 for agents: offline search across Teams, Outlook and OneNote indexed notes. In maintenance mode, because something new is on its way. |
 
 ## For maintainers
 
